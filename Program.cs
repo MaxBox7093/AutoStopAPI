@@ -1,3 +1,5 @@
+using AutoStopAPI.Models.SQL;
+
 namespace AutoStopAPI
 {
     public class Program
