@@ -12,7 +12,7 @@ namespace AutoStopAPI.Controllers
         public IActionResult PostRegistration([FromBody] Registration registration)
         {
             SQLRegistration SQLReg = new SQLRegistration();
-            SQLReg.GetUser(registration);
+            SQLReg.RegistrationUser(registration);
             return Ok();
         }
     }

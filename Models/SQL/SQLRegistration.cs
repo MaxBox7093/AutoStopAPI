@@ -10,7 +10,7 @@ namespace AutoStopAPI.Models.SQL
             this.connection = ConnectionDB();
         }
 
-        public void GetUser(Registration registration) 
+        public void RegistrationUser(Registration registration) 
         {
             var query = "INSERT INTO Users (phone, password, name, lastName, dateOfBirth) VALUES (@Phone, @Password, @Name, @LastName, @DateOfBirth)";
             
