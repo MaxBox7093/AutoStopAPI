@@ -8,8 +8,8 @@ namespace AutoStopAPI.Controllers
     [Route("api/login")]
     public class LoginAPIController : Controller
     {
-        [HttpGet]
-        public IActionResult GetUser([FromQuery] Login login)
+        [HttpPost]
+        public IActionResult PostUser([FromBody] Login login)
         {
             SQLLogin sqlLogin = new SQLLogin();
             var result = sqlLogin.Login(login);
