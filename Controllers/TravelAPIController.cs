@@ -33,5 +33,18 @@ namespace AutoStopAPI.Controllers
             }
             return Ok(travels);
         }
+
+        [HttpDelete]
+        public IActionResult DeleteTravel(int idTravel)
+        {
+            SQLTravel sqlTravel = new SQLTravel();
+            bool result = sqlTravel.DeleteTravel(idTravel);
+
+            if (!result)
+            {
+                return NotFound(new { message = "Travel not found or could not be deleted" });
+            }
+            return Ok(new { message = "Travel deleted successfully" });
+        }
     }
 }

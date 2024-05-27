@@ -117,5 +117,26 @@ namespace AutoStopAPI.Models.SQL
 
             return travels;
         }
+
+        public bool DeleteTravel(int idTravel)
+        {
+            try
+            {
+                using (SqlCommand cmd = new SqlCommand())
+                {
+                    cmd.Connection = this.connection;
+                    cmd.CommandText = @"DELETE FROM [dbo].[Travel] WHERE [idTravel] = @idTravel";
+                    cmd.Parameters.AddWithValue("@idTravel", idTravel);
+
+                    int rowsAffected = cmd.ExecuteNonQuery();
+                    return rowsAffected > 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
+            return false;
+        }
     }
 }
