@@ -22,7 +22,6 @@ namespace AutoStopAPI.Models.SQL
             command.Parameters.AddWithValue("@dateOfBirth", registration.DateOfBirth);
 
             command.ExecuteNonQuery();
-            
         }
     }
 }
