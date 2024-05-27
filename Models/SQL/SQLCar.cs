@@ -14,19 +14,27 @@ namespace AutoStopAPI.Models.SQL
 
         public bool AddCar(Car car)
         {
-            string query = "INSERT INTO Car (GRZ, phoneUser, carModel, color) VALUES (@GRZ, @PhoneUser, @CarModel, @Color)";
-
-            using (var command = new SqlCommand(query, connection))
+            try 
             {
-                command.Parameters.AddWithValue("@GRZ", car.GRZ);
-                command.Parameters.AddWithValue("@PhoneUser", car.PhoneUser);
-                command.Parameters.AddWithValue("@CarModel", car.CarModel);
-                command.Parameters.AddWithValue("@Color", car.Color);
+                string query = "INSERT INTO Car (GRZ, phoneUser, carModel, color) VALUES (@GRZ, @PhoneUser, @CarModel, @Color)";
 
-                int rowsAffected = command.ExecuteNonQuery();
+                using (var command = new SqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@GRZ", car.GRZ);
+                    command.Parameters.AddWithValue("@PhoneUser", car.PhoneUser);
+                    command.Parameters.AddWithValue("@CarModel", car.CarModel);
+                    command.Parameters.AddWithValue("@Color", car.Color);
 
-                return rowsAffected > 0;
+                    int rowsAffected = command.ExecuteNonQuery();
+
+                    return rowsAffected > 0;
+                }
+            } 
+            catch (Exception ex) 
+            {
+                Console.WriteLine("Ошибка при вставке данных в таблицу Car: " + ex.Message);
             }
+            return false;
         }
 
         public List<Car> GetCarsByUser(string phoneUser)

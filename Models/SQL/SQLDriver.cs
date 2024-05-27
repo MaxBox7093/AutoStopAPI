@@ -49,7 +49,6 @@ namespace AutoStopAPI.Models.SQL
                 int rowsAffected = command.ExecuteNonQuery();
 
                 return rowsAffected > 0;
-                
             }
         }
     }
