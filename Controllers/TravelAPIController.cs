@@ -22,14 +22,27 @@ namespace AutoStopAPI.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetTravel([FromBody] Travel travel) 
+        public IActionResult GetTravelDriver([FromQuery] string phoneDriver) 
         {
             SQLTravel sqlTravel = new SQLTravel();
-            List<Travel> travels = sqlTravel.GetTravelsByDriverPhone(travel.phoneDriver!);
+            List<Travel> travels = sqlTravel.GetTravelsByDriverPhone(phoneDriver);
 
             if (travels == null || travels.Count == 0)
             {
                 return NotFound(new { message = "No travels found for the given driver phone number" });
+            }
+            return Ok(travels);
+        }
+
+        [HttpGet("passenger")]
+        public IActionResult GetTravelPassenger([FromQuery] string phonePassenger)
+        {
+            SQLTravel sqlTravel = new SQLTravel();
+            List<Travel> travels = sqlTravel.GetTravelsByPassengerPhone(phonePassenger);
+
+            if (travels == null || travels.Count == 0)
+            {
+                return NotFound(new { message = "No travels found for the given passenger phone number" });
             }
             return Ok(travels);
         }

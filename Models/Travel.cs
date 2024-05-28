@@ -9,7 +9,7 @@
         public DateTime? dateTime { get; set; }
         public int? numberPassenger { get; set; }
         public string? comment { get; set; }
-        public List<string>? phonePassenger { get; set; }
+        public List<Passenger>? Passengers { get; set; }
         public string? phoneDriver { get; set;}
         public bool? isActive { get; set; }
     }

@@ -80,10 +80,10 @@ namespace AutoStopAPI.Models.SQL
             {
                 cmd.Connection = this.connection;
                 cmd.CommandText = @"
-                    SELECT t.idTravel, t.carGRZ, t.startCity, t.endCity, t.dateTime, t.numberPassenger, t.comment, t.isActive
-                    FROM [dbo].[Travel] t
-                    INNER JOIN [dbo].[DriverTravel] dt ON t.idTravel = dt.idTravel
-                    WHERE dt.phoneDriver = @phoneDriver";
+            SELECT t.idTravel, t.carGRZ, t.startCity, t.endCity, t.dateTime, t.numberPassenger, t.comment, t.isActive
+            FROM [dbo].[Travel] t
+            INNER JOIN [dbo].[DriverTravel] dt ON t.idTravel = dt.idTravel
+            WHERE dt.phoneDriver = @phoneDriver";
 
                 cmd.Parameters.AddWithValue("@phoneDriver", phoneDriver);
 
@@ -102,8 +102,38 @@ namespace AutoStopAPI.Models.SQL
                                 dateTime = reader.GetDateTime(4),
                                 numberPassenger = reader.GetInt32(5),
                                 comment = reader.IsDBNull(6) ? null : reader.GetString(6),
-                                isActive = reader.IsDBNull(7) ? (bool?)null : reader.GetBoolean(7)
+                                isActive = reader.IsDBNull(7) ? (bool?)null : reader.GetBoolean(7),
+                                Passengers = new List<Passenger>()
                             };
+
+                            // Закрываем reader перед выполнением нового запроса
+                            reader.Close();
+
+                            // Получение списка пассажиров для данной поездки
+                            using (SqlCommand passengerCmd = new SqlCommand())
+                            {
+                                passengerCmd.Connection = this.connection;
+                                passengerCmd.CommandText = @"
+                            SELECT p.phoneTraveler, p.numberPassenger
+                            FROM [dbo].[Passenger] p
+                            WHERE p.idTravel = @idTravel";
+                                passengerCmd.Parameters.AddWithValue("@idTravel", travel.idTravel);
+
+                                using (SqlDataReader passengerReader = passengerCmd.ExecuteReader())
+                                {
+                                    while (passengerReader.Read())
+                                    {
+                                        Passenger passenger = new Passenger
+                                        {
+                                            PhonePassenger = passengerReader.GetString(0),
+                                            NumberPassenger = passengerReader.GetInt32(1)
+                                        };
+                                        travel.Passengers.Add(passenger);
+                                    }
+                                }
+                            }
+
+                            // Добавляем travel в список только после выполнения всех запросов
                             travels.Add(travel);
                         }
                     }
@@ -117,6 +147,103 @@ namespace AutoStopAPI.Models.SQL
 
             return travels;
         }
+
+        public List<Travel> GetTravelsByPassengerPhone(string phonePassenger)
+        {
+            List<Travel> travels = new List<Travel>();
+
+            using (SqlCommand cmd = new SqlCommand())
+            {
+                cmd.Connection = this.connection;
+                cmd.CommandText = @"
+            SELECT t.idTravel, t.carGRZ, t.startCity, t.endCity, t.dateTime, t.numberPassenger, t.comment, t.isActive
+            FROM [dbo].[Travel] t
+            INNER JOIN [dbo].[Passenger] p ON t.idTravel = p.idTravel
+            WHERE p.phoneTraveler = @phoneTraveler";
+
+                cmd.Parameters.AddWithValue("@phoneTraveler", phonePassenger);
+
+                try
+                {
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            Travel travel = new Travel
+                            {
+                                idTravel = reader.GetInt32(0),
+                                carGRZ = reader.GetString(1),
+                                startCity = reader.GetString(2),
+                                endCity = reader.GetString(3),
+                                dateTime = reader.GetDateTime(4),
+                                numberPassenger = reader.GetInt32(5),
+                                comment = reader.IsDBNull(6) ? null : reader.GetString(6),
+                                isActive = reader.IsDBNull(7) ? (bool?)null : reader.GetBoolean(7),
+                                Passengers = new List<Passenger>()
+                            };
+
+                            // Добавляем travel в список
+                            travels.Add(travel);
+                        }
+                    }
+
+                    // Выполняем второй запрос для каждого travel после закрытия первого SqlDataReader
+                    foreach (var travel in travels)
+                    {
+                        // Получение списка пассажиров для данной поездки
+                        using (SqlCommand passengerCmd = new SqlCommand())
+                        {
+                            passengerCmd.Connection = this.connection;
+                            passengerCmd.CommandText = @"
+                        SELECT p.phoneTraveler, p.numberPassenger
+                        FROM [dbo].[Passenger] p
+                        WHERE p.idTravel = @idTravel";
+                            passengerCmd.Parameters.AddWithValue("@idTravel", travel.idTravel);
+
+                            using (SqlDataReader passengerReader = passengerCmd.ExecuteReader())
+                            {
+                                while (passengerReader.Read())
+                                {
+                                    Passenger passenger = new Passenger
+                                    {
+                                        PhonePassenger = passengerReader.GetString(0),
+                                        NumberPassenger = passengerReader.GetInt32(1)
+                                    };
+                                    travel.Passengers.Add(passenger);
+                                }
+                            }
+                        }
+
+                        // Получение номера телефона водителя для данной поездки
+                        using (SqlCommand driverCmd = new SqlCommand())
+                        {
+                            driverCmd.Connection = this.connection;
+                            driverCmd.CommandText = @"
+                        SELECT dt.phoneDriver
+                        FROM [dbo].[DriverTravel] dt
+                        WHERE dt.idTravel = @idTravel";
+                            driverCmd.Parameters.AddWithValue("@idTravel", travel.idTravel);
+
+                            using (SqlDataReader driverReader = driverCmd.ExecuteReader())
+                            {
+                                if (driverReader.Read())
+                                {
+                                    travel.phoneDriver = driverReader.GetString(0);
+                                }
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // Обработка ошибки (логирование или повторный выброс исключения)
+                    Console.WriteLine($"Произошла ошибка: {ex.Message}");
+                }
+            }
+
+            return travels;
+        }
+
 
         public bool DeleteTravel(int idTravel)
         {
