@@ -9,7 +9,7 @@ namespace AutoStopAPI.Controllers
     [ApiController]
     public class UserAPIController : ControllerBase
     {
-        [HttpPost]
+        [HttpPatch]
         public IActionResult PostUser([FromBody] User user)
         {
             SQLUser sqlUser = new SQLUser();
