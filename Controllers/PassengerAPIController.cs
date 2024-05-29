@@ -14,11 +14,11 @@ public class PassengerAPIController : ControllerBase
 
         switch (result)
         {
-            case AddPassengerResult.Added:
+            case AddResult.Added:
                 return Ok("Passenger added to travel");
-            case AddPassengerResult.AlreadyExists:
+            case AddResult.AlreadyExists:
                 return Conflict("Passenger already exists in travel");
-            case AddPassengerResult.Error:
+            case AddResult.Error:
                 return BadRequest("Error! Passenger not added to travel");
             default:
                 return StatusCode(StatusCodes.Status500InternalServerError, "Unknown error");

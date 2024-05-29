@@ -10,7 +10,7 @@ namespace AutoStopAPI.Models.SQL
             this.connection = ConnectionDB();
         }
 
-        public AddPassengerResult AddPassenger(Passenger passenger)
+        public AddResult AddPassenger(Passenger passenger)
         {
             try
             {
@@ -23,7 +23,7 @@ namespace AutoStopAPI.Models.SQL
 
                 if (exists)
                 {
-                    return AddPassengerResult.AlreadyExists;
+                    return AddResult.AlreadyExists;
                 }
 
                 var insertQuery = "INSERT INTO Passenger (phoneTraveler, idTravel, numberPassenger) VALUES (@phoneTraveler, @idTravel, @number)";
@@ -36,14 +36,14 @@ namespace AutoStopAPI.Models.SQL
 
                 if (rowsAffected > 0)
                 {
-                    return AddPassengerResult.Added;
+                    return AddResult.Added;
                 }
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex);
             }
-            return AddPassengerResult.Error;
+            return AddResult.Error;
         }
 
         public bool RemovePassenger(Passenger passenger)

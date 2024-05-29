@@ -1,6 +1,6 @@
 ﻿namespace AutoStopAPI.Models
 {
-    public enum AddPassengerResult
+    public enum AddResult
     {
         Added,
         AlreadyExists,
