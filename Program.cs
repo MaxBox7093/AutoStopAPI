@@ -1,3 +1,5 @@
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using AutoStopAPI.Models.SQL;
 
 namespace AutoStopAPI
@@ -10,6 +12,13 @@ namespace AutoStopAPI
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();
+
+            // Register SQLTravel and SQLConnectionDb
+            builder.Services.AddSingleton<SQLConnectionDb>();
+            builder.Services.AddSingleton<SQLTravelService>();
+
+            // Register the background service
+            builder.Services.AddHostedService<TravelCheckService>();
 
             var app = builder.Build();
 
