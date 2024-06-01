@@ -75,74 +75,67 @@ namespace AutoStopAPI.Models.SQL
         public List<Travel> GetTravelsByDriverPhone(string phoneDriver)
         {
             List<Travel> travels = new List<Travel>();
-
-            using (SqlCommand cmd = new SqlCommand())
+            try
             {
-                cmd.Connection = this.connection;
-                cmd.CommandText = @"
-            SELECT t.idTravel, t.carGRZ, t.startCity, t.endCity, t.dateTime, t.numberPassenger, t.comment, t.isActive
-            FROM [dbo].[Travel] t
-            INNER JOIN [dbo].[DriverTravel] dt ON t.idTravel = dt.idTravel
-            WHERE dt.phoneDriver = @phoneDriver";
-
-                cmd.Parameters.AddWithValue("@phoneDriver", phoneDriver);
-
-                try
+                using (var cmd = new SqlCommand())
                 {
-                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    cmd.Connection = this.connection;
+                    cmd.CommandText = @"
+                    SELECT t.idTravel, t.carGRZ, t.startCity, t.endCity, t.dateTime, t.numberPassenger, t.comment, t.isActive
+                    FROM [dbo].[Travel] t
+                    INNER JOIN [dbo].[DriverTravel] dt ON t.idTravel = dt.idTravel
+                    WHERE dt.phoneDriver = @phoneDriver";
+
+                    cmd.Parameters.AddWithValue("@phoneDriver", phoneDriver);
+
+                    var reader = cmd.ExecuteReader();
+                    while (reader.Read())
                     {
-                        while (reader.Read())
+                        travels.Add(new Travel
                         {
-                            Travel travel = new Travel
+                            idTravel = reader.GetInt32(0),
+                            carGRZ = reader.GetString(1),
+                            startCity = reader.GetString(2),
+                            endCity = reader.GetString(3),
+                            dateTime = reader.GetDateTime(4),
+                            numberPassenger = reader.GetInt32(5),
+                            comment = reader.IsDBNull(6) ? null : reader.GetString(6),
+                            isActive = reader.IsDBNull(7) ? (bool?)null : reader.GetBoolean(7),
+                            Passengers = new List<Passenger>()
+                        });
+                    }
+                    reader.Close();
+                }
+
+                foreach (var travel in travels)
+                {
+                    // Получение списка пассажиров для данной поездки
+                    using (var passengerCmd = new SqlCommand())
+                    {
+                        passengerCmd.Connection = this.connection;
+                        passengerCmd.CommandText = @"
+                    SELECT p.phoneTraveler, p.numberPassenger
+                    FROM [dbo].[Passenger] p
+                    WHERE p.idTravel = @idTravel";
+                        passengerCmd.Parameters.AddWithValue("@idTravel", travel.idTravel);
+
+                        var passengerReader = passengerCmd.ExecuteReader();
+                        while (passengerReader.Read())
+                        {
+                            travel.Passengers.Add(new Passenger
                             {
-                                idTravel = reader.GetInt32(0),
-                                carGRZ = reader.GetString(1),
-                                startCity = reader.GetString(2),
-                                endCity = reader.GetString(3),
-                                dateTime = reader.GetDateTime(4),
-                                numberPassenger = reader.GetInt32(5),
-                                comment = reader.IsDBNull(6) ? null : reader.GetString(6),
-                                isActive = reader.IsDBNull(7) ? (bool?)null : reader.GetBoolean(7),
-                                Passengers = new List<Passenger>()
-                            };
-
-                            // Закрываем reader перед выполнением нового запроса
-                            reader.Close();
-
-                            // Получение списка пассажиров для данной поездки
-                            using (SqlCommand passengerCmd = new SqlCommand())
-                            {
-                                passengerCmd.Connection = this.connection;
-                                passengerCmd.CommandText = @"
-                            SELECT p.phoneTraveler, p.numberPassenger
-                            FROM [dbo].[Passenger] p
-                            WHERE p.idTravel = @idTravel";
-                                passengerCmd.Parameters.AddWithValue("@idTravel", travel.idTravel);
-
-                                using (SqlDataReader passengerReader = passengerCmd.ExecuteReader())
-                                {
-                                    while (passengerReader.Read())
-                                    {
-                                        Passenger passenger = new Passenger
-                                        {
-                                            PhonePassenger = passengerReader.GetString(0),
-                                            NumberPassenger = passengerReader.GetInt32(1)
-                                        };
-                                        travel.Passengers.Add(passenger);
-                                    }
-                                }
-                            }
-
-                            // Добавляем travel в список только после выполнения всех запросов
-                            travels.Add(travel);
+                                PhonePassenger = passengerReader.GetString(0),
+                                NumberPassenger = passengerReader.GetInt32(1)
+                            });
                         }
+                        passengerReader.Close();
                     }
                 }
-                catch (Exception ex)
-                {
-                    // Обработка ошибки (логирование или повторный выброс исключения)
-                    Console.WriteLine($"Произошла ошибка: {ex.Message}");
-                }
+            }
+            catch (Exception ex)
+            {
+                // Обработка ошибки (логирование или повторный выброс исключения)
+                Console.WriteLine($"Произошла ошибка: {ex.Message}");
             }
 
             return travels;
