@@ -38,7 +38,7 @@ namespace AutoStopAPI.Models.SQL
                     cmd.Parameters.AddWithValue("@dateTime", travel.dateTime ?? (object)DBNull.Value);
                     cmd.Parameters.AddWithValue("@numberPassenger", travel.numberPassenger ?? (object)DBNull.Value);
                     cmd.Parameters.AddWithValue("@comment", travel.comment ?? (object)DBNull.Value);
-                    cmd.Parameters.AddWithValue("@isActive", travel.isActive ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@isActive", true);
 
                     int newTravelId = Convert.ToInt32(cmd.ExecuteScalar());
 
