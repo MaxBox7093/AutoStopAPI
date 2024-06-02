@@ -10,8 +10,13 @@ namespace AutoStopAPI.Controllers
     public class TravelSearchPassengerAPIController : Controller
     {
         [HttpGet]
-        public IActionResult SearchTravel([FromBody]PassengerSearch passenger)
+        public IActionResult SearchTravel([FromQuery] string startCity, string endCity, int numberPassenger, DateOnly date)
         {
+            PassengerSearch passenger = new PassengerSearch();
+            passenger.startCity = startCity;
+            passenger.endCity = endCity;
+            passenger.numberPassenger = numberPassenger;
+            passenger.date = date;
             try
             {
                 SQLSearchTravelPassenger search = new SQLSearchTravelPassenger();
