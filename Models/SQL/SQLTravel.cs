@@ -101,7 +101,8 @@ namespace AutoStopAPI.Models.SQL
                             numberPassenger = reader.GetInt32(5),
                             comment = reader.IsDBNull(6) ? null : reader.GetString(6),
                             isActive = reader.IsDBNull(7) ? (bool?)null : reader.GetBoolean(7),
-                            Passengers = new List<Passenger>()
+                            Passengers = new List<Passenger>(),
+                            phoneDriver = phoneDriver
                         });
                     }
                     reader.Close();
