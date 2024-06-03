@@ -21,7 +21,8 @@ namespace AutoStopAPI.Models.SQL
                 try
                 {
                     var result = command.ExecuteScalar();
-
+                    connection.Close();
+                    Console.WriteLine("Подключение закрыто!");
                     if (result != null)
                     {
                         return result.ToString();

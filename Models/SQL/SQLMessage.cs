@@ -1,20 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
 using AutoStopAPI.Models;
 
 namespace AutoStopAPI.Models.SQL
 {
-    public class SQLMessage : SQLConnectionDb
+    public class SQLMessage
     {
-        SqlConnection connection;
+        private DatabaseManager dbManager;
+
         public SQLMessage()
         {
-            this.connection = ConnectionDB();
+            dbManager = new DatabaseManager();
         }
 
-        //Используется только в том случае, если создается чат
-        public List<Message> GetMessage(Chat chat)
+        public async Task<List<Message>> GetMessageAsync(Chat chat)
         {
             List<Message> messages = new List<Message>();
 
@@ -26,14 +27,15 @@ namespace AutoStopAPI.Models.SQL
                                     OR (phoneUser1 = @phoneUser2 AND phoneUser2 = @phoneUser1))
                 ORDER BY sendDate DESC";
 
+            using (var connection = await dbManager.GetOpenConnectionAsync())
             using (var command = new SqlCommand(query, connection))
             {
                 command.Parameters.AddWithValue("@phoneUser1", chat.phoneUser1);
                 command.Parameters.AddWithValue("@phoneUser2", chat.phoneUser2);
 
-                using (var reader = command.ExecuteReader())
+                using (var reader = await command.ExecuteReaderAsync())
                 {
-                    while (reader.Read())
+                    while (await reader.ReadAsync())
                     {
                         messages.Add(new Message
                         {
@@ -50,7 +52,7 @@ namespace AutoStopAPI.Models.SQL
             return messages;
         }
 
-        public List<Message> GetMessageById(int idChat)
+        public async Task<List<Message>> GetMessageByIdAsync(int idChat)
         {
             List<Message> messages = new List<Message>();
 
@@ -60,23 +62,41 @@ namespace AutoStopAPI.Models.SQL
         WHERE refChat = @idChat
         ORDER BY sendDate DESC";
 
-            using (var command = new SqlCommand(query, connection))
-            {
-                command.Parameters.AddWithValue("@idChat", idChat);
+            SqlConnection connection = null;
 
-                using (var reader = command.ExecuteReader())
+            try
+            {
+                connection = await dbManager.GetOpenConnectionAsync();
+                using (var command = new SqlCommand(query, connection))
                 {
-                    while (reader.Read())
+                    command.Parameters.AddWithValue("@idChat", idChat);
+
+                    using (var reader = await command.ExecuteReaderAsync())
                     {
-                        messages.Add(new Message
+                        while (await reader.ReadAsync())
                         {
-                            idMessage = reader.GetInt32(0),
-                            refChat = reader.GetInt32(1),
-                            senderPhone = reader.GetString(2),
-                            content = reader.GetString(3),
-                            sendDate = reader.GetDateTime(4)
-                        });
+                            messages.Add(new Message
+                            {
+                                idMessage = reader.GetInt32(0),
+                                refChat = reader.GetInt32(1),
+                                senderPhone = reader.GetString(2),
+                                content = reader.GetString(3),
+                                sendDate = reader.GetDateTime(4)
+                            });
+                        }
                     }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred: {ex.Message}");
+                // Логирование ошибки или другие действия
+            }
+            finally
+            {
+                if (connection != null && connection.State == System.Data.ConnectionState.Open)
+                {
+                    await connection.CloseAsync();
                 }
             }
 
@@ -84,13 +104,14 @@ namespace AutoStopAPI.Models.SQL
         }
 
 
-        public int AddMessage(Message message)
+        public async Task<int> AddMessageAsync(Message message)
         {
             string query = @"
-        INSERT INTO message (refChat, senderPhone, content, sendDate) 
-        OUTPUT INSERTED.idMessage
-        VALUES (@refChat, @senderPhone, @content, @sendDate)";
+                INSERT INTO message (refChat, senderPhone, content, sendDate) 
+                OUTPUT INSERTED.idMessage
+                VALUES (@refChat, @senderPhone, @content, @sendDate)";
 
+            using (var connection = await dbManager.GetOpenConnectionAsync())
             using (var command = new SqlCommand(query, connection))
             {
                 command.Parameters.AddWithValue("@refChat", message.refChat);
@@ -98,7 +119,7 @@ namespace AutoStopAPI.Models.SQL
                 command.Parameters.AddWithValue("@content", message.content);
                 command.Parameters.AddWithValue("@sendDate", DateTime.Now);
 
-                int insertedId = (int)command.ExecuteScalar();
+                int insertedId = (int)await command.ExecuteScalarAsync();
                 return insertedId;
             }
         }

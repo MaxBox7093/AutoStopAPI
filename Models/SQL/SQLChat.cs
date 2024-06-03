@@ -1,4 +1,7 @@
 ﻿using Microsoft.Data.SqlClient;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace AutoStopAPI.Models.SQL
 {
@@ -11,7 +14,7 @@ namespace AutoStopAPI.Models.SQL
         }
 
         //Создание чата, но если чат создан то возвращаются и чат и сообщения
-        public Chat CreateChat(Chat chat)
+        public async Task<Chat> CreateChatAsync(Chat chat)
         {
             try
             {
@@ -24,9 +27,9 @@ namespace AutoStopAPI.Models.SQL
                     command.Parameters.AddWithValue("@phoneUser1", chat.phoneUser1);
                     command.Parameters.AddWithValue("@phoneUser2", chat.phoneUser2);
 
-                    using (var reader = command.ExecuteReader())
+                    using (var reader = await command.ExecuteReaderAsync())
                     {
-                        if (reader.Read())
+                        if (await reader.ReadAsync())
                         {
                             chat.idChat = reader.GetInt32(0);
                             chat.dateCreate = reader.GetDateTime(1);
@@ -34,7 +37,7 @@ namespace AutoStopAPI.Models.SQL
                             chat.deleteUser2 = reader.GetBoolean(3);
 
                             SQLMessage sqlMessage = new SQLMessage();
-                            chat.messages = sqlMessage.GetMessage(chat);
+                            chat.messages = await sqlMessage.GetMessageAsync(chat);
                             return chat; // Чат уже существует, возвращаем полный объект чата
                         }
                     }
@@ -53,9 +56,9 @@ namespace AutoStopAPI.Models.SQL
                     insertCommand.Parameters.AddWithValue("@deleteUser1", false);
                     insertCommand.Parameters.AddWithValue("@deleteUser2", false);
 
-                    using (var reader = insertCommand.ExecuteReader())
+                    using (var reader = await insertCommand.ExecuteReaderAsync())
                     {
-                        if (reader.Read())
+                        if (await reader.ReadAsync())
                         {
                             chat.idChat = reader.GetInt32(0);
                             chat.dateCreate = reader.GetDateTime(1);
@@ -74,7 +77,7 @@ namespace AutoStopAPI.Models.SQL
         }
 
         //Получение всех чатов по номеру телефона
-        public List<Chat> GetChats(string phone)
+        public async Task<List<Chat>> GetChatsAsync(string phone)
         {
             List<Chat> chats = new List<Chat>();
             try
@@ -96,9 +99,9 @@ namespace AutoStopAPI.Models.SQL
                 {
                     command.Parameters.AddWithValue("@phoneNumber", phone);
 
-                    using (var reader = command.ExecuteReader())
+                    using (var reader = await command.ExecuteReaderAsync())
                     {
-                        while (reader.Read())
+                        while (await reader.ReadAsync())
                         {
                             Chat chat = new Chat
                             {
