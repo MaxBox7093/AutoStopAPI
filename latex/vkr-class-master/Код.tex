@@ -1,0 +1,659 @@
+\appendix{Фрагменты исходного кода программы}
+
+Program.cs
+\begin{lstlisting}[language=Java]
+
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using AutoStopAPI.Models.SQL;
+
+namespace AutoStopAPI
+{
+	public class Program
+	{
+		public static void Main(string[] args)
+		{
+			var builder = WebApplication.CreateBuilder(args);
+			
+			// Add services to the container.
+			builder.Services.AddControllersWithViews();
+			
+			// Register SQLTravel and SQLConnectionDb
+			builder.Services.AddSingleton<SQLConnectionDb>();
+			builder.Services.AddSingleton<SQLTravelService>();
+			
+			// Register the background service
+			builder.Services.AddHostedService<TravelCheckService>();
+			
+			var app = builder.Build();
+			
+			if (!app.Environment.IsDevelopment())
+			{
+				app.UseExceptionHandler("/Home/Error");
+				app.UseHsts();
+			}
+			
+			app.UseHttpsRedirection();
+			app.UseStaticFiles();
+			
+			app.UseRouting();
+			
+			app.UseAuthorization();
+			
+			app.MapControllerRoute(
+			name: "default",
+			pattern: "{controller=Home}/{action=Index}/{id?}");
+			
+			app.Run();
+		}
+	}
+}
+
+
+\end{lstlisting}
+
+CarController.cs
+\begin{lstlisting}[language=Java]
+	using AutoStopAPI.Models;
+	using AutoStopAPI.Models.SQL;
+	using Microsoft.AspNetCore.Mvc;
+	using System.Collections.Generic;
+	
+	namespace AutoStopAPI.Controllers
+	{
+		[ApiController]
+		[Route("api/car")]
+		public class CarController : Controller
+		{
+			[HttpGet]
+			public IActionResult GetCar([FromQuery] string phone)
+			{
+				SQLCar sqlCar = new SQLCar();
+				List<Car> cars = sqlCar.GetCarsByUser(phone);
+				if (cars.Count == 0)
+				{
+					return NotFound(new { message = "No cars found for this user" });
+				}
+				
+				return Ok(cars);
+			}
+			
+			[HttpPost]
+			public IActionResult PostCar([FromBody] Car car)
+			{
+				SQLCar sqlCar = new SQLCar();
+				bool result = sqlCar.AddCar(car);
+				if (result == false)
+				{
+					// Возвращаем 400, если добавление не удалось
+					return BadRequest(new { message = "Failed to add car" });
+				}
+				
+				return Ok(car);
+			}
+			
+			[HttpDelete]
+			public IActionResult DeleteCar([FromBody] Car car)
+			{
+				SQLCar sqlCar = new SQLCar();
+				bool result = sqlCar.DeleteCar(car.PhoneUser, car.GRZ);
+				if (result == false)
+				{
+					// Возвращаем 404, если удаление не удалось
+					return NotFound(new { message = "Car not found or failed to delete" });
+				}
+				
+				return Ok(new { message = "Car successfully deleted" });
+			}
+			
+			[HttpPatch]
+			public IActionResult PatchCar([FromBody] Car car)
+			{
+				SQLCar sqlCar = new SQLCar();
+				bool result = sqlCar.UpdateCar(car);
+				if (result == false)
+				{
+					// Возвращаем 400, если обновление не удалось
+					return BadRequest(new { message = "Failed to update car" });
+				}
+				
+				return Ok(new { message = "Car update" });
+			}
+		}
+	}
+	
+\end{lstlisting}
+
+ChatAPIController.cs
+\begin{lstlisting}[language=Java]
+	using AutoStopAPI.Models;
+	using AutoStopAPI.Models.SQL;
+	using Microsoft.AspNetCore.Http;
+	using Microsoft.AspNetCore.Mvc;
+	using System;
+	using System.Collections.Generic;
+	using System.Threading.Tasks;
+	
+	namespace AutoStopAPI.Controllers
+	{
+		[Route("api/chat")]
+		[ApiController]
+		public class ChatAPIController : ControllerBase
+		{
+			[HttpGet]
+			public async Task<IActionResult> GetChats([FromQuery] string phone)
+			{
+				SQLChat sqlchat = new SQLChat();
+				List<Chat> chats = await sqlchat.GetChatsAsync(phone);
+				if (chats == null)
+				return BadRequest("Error. Chat not found!");
+				return Ok(chats);
+			}
+			
+			[HttpPost]
+			public async Task<IActionResult> PostChat([FromBody] Chat chat)
+			{
+				SQLChat sqlChat = new SQLChat();
+				chat = await sqlChat.CreateChatAsync(chat);
+				if (chat == null)
+				return BadRequest("Error. Chat don't create!");
+				return Ok(chat);
+			}
+			
+			[HttpDelete]
+			public IActionResult DeleteChat([FromBody] Chat chat)
+			{
+				return Ok();
+			}
+		}
+	}
+\end{lstlisting}
+
+DriverController.cs
+\begin{lstlisting}[language=Java]
+	using AutoStopAPI.Models.SQL;
+	using AutoStopAPI.Models;
+	using Microsoft.AspNetCore.Mvc;
+	
+	namespace AutoStopAPI.Controllers
+	{
+		[ApiController]
+		[Route("api/driver")]
+		public class DriverController : ControllerBase
+		{
+			//Проверяем является ли User водителем
+			[HttpGet]
+			public IActionResult GetDriver([FromQuery] string phone)
+			{
+				SQLDriver sqlDriver = new SQLDriver();
+				var driver = sqlDriver.SerchDrive(phone);
+				
+				if (driver == null)
+				{
+					// Возвращаем 404, если запись не найдена
+					return NotFound(new { message = "Driver not found" });
+				}
+				
+				return Ok(driver);
+			}
+			
+			[HttpPost]
+			public IActionResult AddDriver([FromBody] Driver driver)
+			{
+				SQLDriver sqlDriver = new SQLDriver();
+				bool result = sqlDriver.AddDriver(driver);
+				if (result == false)
+				{
+					// Возвращаем 404, если запись не найдена
+					return NotFound(new { message = "Driver not found" });
+				}
+				
+				return Ok(driver);
+			}
+		}
+	}
+\end{lstlisting}
+
+GetNameToPhone.cs
+\begin{lstlisting}[language=Java]
+	using AutoStopAPI.Models.SQL;
+	using Microsoft.AspNetCore.Http;
+	using Microsoft.AspNetCore.Mvc;
+	
+	namespace AutoStopAPI.Controllers
+	{
+		[Route("api/GetName")]
+		[ApiController]
+		public class GetNameToPhone : ControllerBase
+		{
+			[HttpGet]
+			public IActionResult GetName([FromQuery] string phone) 
+			{
+				SQLGetName getname = new SQLGetName();
+				string name = getname.GetName(phone);
+				return Ok(name);
+			}
+		}
+	}
+	
+\end{lstlisting}
+
+ImgAPIController.cs
+\begin{lstlisting}[language=Java]
+	using Microsoft.AspNetCore.Http;
+	using Microsoft.AspNetCore.Mvc;
+	using System.IO;
+	using System.Threading.Tasks;
+	using AutoStopAPI.Models.SQL;
+	
+	namespace AutoStopAPI.Controllers
+	{
+		[Route("api/img")]
+		[ApiController]
+		public class ImgAPIController : ControllerBase
+		{
+			private readonly SQLImg _sqlImg;
+			
+			public ImgAPIController()
+			{
+				_sqlImg = new SQLImg();
+			}
+			
+			[HttpPatch]
+			public async Task<IActionResult> UpdateImage(string phone, IFormFile image)
+			{
+				if (image == null || image.Length == 0)
+				{
+					return BadRequest("No image file provided.");
+				}
+				
+				byte[] imageData;
+				using (var ms = new MemoryStream())
+				{
+					await image.CopyToAsync(ms);
+					imageData = ms.ToArray();
+				}
+				
+				bool updateSuccess = _sqlImg.UpdateUserImage(phone, imageData);
+				if (updateSuccess)
+				{
+					return Ok("Image updated successfully.");
+				}
+				else
+				{
+					return StatusCode(StatusCodes.Status500InternalServerError, "Error updating image.");
+				}
+			}
+			
+			[HttpGet("{phone}")]
+			public IActionResult GetImage(string phone)
+			{
+				var imageData = _sqlImg.GetUserImage(phone);
+				if (imageData != null)
+				{
+					return File(imageData, "image/jpeg"); // Assuming the image format is jpeg
+				}
+				else
+				{
+					return NotFound("Image not found.");
+				}
+			}
+		}
+	}
+\end{lstlisting}
+
+LoginAPIController.cs
+\begin{lstlisting}[language=Java]
+	using AutoStopAPI.Models;
+	using AutoStopAPI.Models.SQL;
+	using Microsoft.AspNetCore.Mvc;
+	
+	namespace AutoStopAPI.Controllers
+	{
+		[ApiController]
+		[Route("api/login")]
+		public class LoginAPIController : Controller
+		{
+			[HttpPost]
+			public IActionResult PostUser([FromBody] Login login)
+			{
+				SQLLogin sqlLogin = new SQLLogin();
+				var result = sqlLogin.Login(login);
+				return Ok(result);
+			}
+		}
+	}
+\end{lstlisting}
+
+MessageAPIController.cs
+\begin{lstlisting}[language=Java]
+	using AutoStopAPI.Models;
+	using AutoStopAPI.Models.SQL;
+	using Microsoft.AspNetCore.Http;
+	using Microsoft.AspNetCore.Mvc;
+	using System.Collections.Generic;
+	using System.Threading.Tasks;
+	
+	namespace AutoStopAPI.Controllers
+	{
+		[Route("api/message")]
+		[ApiController]
+		public class MessageAPIController : ControllerBase
+		{
+			[HttpPost]
+			public async Task<IActionResult> PostMessage([FromBody] Message message)
+			{
+				SQLMessage sqlMessage = new SQLMessage();
+				int idMessage = await sqlMessage.AddMessageAsync(message);
+				return Ok(idMessage);
+			}
+			
+			[HttpGet]
+			public async Task<IActionResult> GetMessage([FromQuery] int idChat)
+			{
+				var sqlMessage = new SQLMessage();
+				List<Message> messages = await sqlMessage.GetMessageByIdAsync(idChat);
+				return Ok(messages);
+			}
+		}
+	}
+\end{lstlisting}
+
+PassengerAPIController.cs
+\begin{lstlisting}[language=Java]
+	using AutoStopAPI.Models.SQL;
+	using AutoStopAPI.Models;
+	using Microsoft.AspNetCore.Mvc;
+	
+	[Route("api/passenger")]
+	[ApiController]
+	public class PassengerAPIController : ControllerBase
+	{
+		[HttpPost]
+		public IActionResult PostPassenger([FromBody] Passenger passenger)
+		{
+			SQLPassenger sqlPassenger = new SQLPassenger();
+			var result = sqlPassenger.AddPassenger(passenger);
+			
+			switch (result)
+			{
+				case AddResult.Added:
+				return Ok("Passenger added to travel");
+				case AddResult.AlreadyExists:
+				return Conflict("Passenger already exists in travel");
+				case AddResult.Error:
+				return BadRequest("Error! Passenger not added to travel");
+				default:
+				return StatusCode(StatusCodes.Status500InternalServerError, "Unknown error");
+			}
+		}
+		
+		[HttpDelete]
+		public IActionResult DeletePassenger([FromBody] Passenger passenger)
+		{
+			SQLPassenger sqlPassenger = new SQLPassenger();
+			bool result = sqlPassenger.RemovePassenger(passenger);
+			
+			if (result)
+			{
+				return Ok("Passenger removed from travel");
+			}
+			else
+			{
+				return NotFound("Passenger not found in travel or error occurred");
+			}
+		}
+	}
+\end{lstlisting}
+
+RatingAPIController.cs
+\begin{lstlisting}[language=Java]
+	using Microsoft.AspNetCore.Http;
+	using Microsoft.AspNetCore.Mvc;
+	using AutoStopAPI.Models.SQL;
+	using System.Collections.Generic;
+	
+	namespace AutoStopAPI.Controllers
+	{
+		[Route("api/rating")]
+		[ApiController]
+		public class RatingAPIController : ControllerBase
+		{
+			private readonly SQLComment _sqlComment;
+			
+			public RatingAPIController()
+			{
+				_sqlComment = new SQLComment();
+			}
+			
+			[HttpGet]
+			public IActionResult GetRating(string phone)
+			{
+				try
+				{
+					List<Rating> ratings = _sqlComment.GetRatings(phone);
+					if (ratings == null || ratings.Count == 0)
+					{
+						return NotFound("No ratings found for the given phone number.");
+					}
+					return Ok(ratings);
+				}
+				catch (Exception ex)
+				{
+					return StatusCode(StatusCodes.Status500InternalServerError, $"Error retrieving data: {ex.Message}");
+				}
+			}
+			
+			[HttpPost]
+			public IActionResult PostRating([FromBody] Rating rating)
+			{
+				if (rating == null || string.IsNullOrEmpty(rating.phoneGet) || string.IsNullOrEmpty(rating.phoneSend))
+				{
+					return BadRequest("Invalid rating data.");
+				}
+				
+				try
+				{
+					int idComment = _sqlComment.AddRating(rating);
+					if (idComment > 0)
+					{
+						return Ok(idComment);
+					}
+					else
+					{
+						return StatusCode(StatusCodes.Status500InternalServerError, "Error adding rating.");
+					}
+				}
+				catch (Exception ex)
+				{
+					return StatusCode(StatusCodes.Status500InternalServerError, $"Error adding rating: {ex.Message}");
+				}
+			}
+			
+			[HttpDelete]
+			public IActionResult DeleteRating(int idComment)
+			{
+				try
+				{
+					bool isDeleted = _sqlComment.DeleteRating(idComment);
+					if (isDeleted)
+					{
+						return Ok("Rating deleted successfully.");
+					}
+					else
+					{
+						return NotFound("Rating not found.");
+					}
+				}
+				catch (Exception ex)
+				{
+					return StatusCode(StatusCodes.Status500InternalServerError, $"Error deleting rating: {ex.Message}");
+				}
+			}
+		}
+	}
+\end{lstlisting}
+
+RegistrationAPIController.cs
+\begin{lstlisting}[language=Java]
+	using AutoStopAPI.Models;
+	using AutoStopAPI.Models.SQL;
+	using Microsoft.AspNetCore.Mvc;
+	
+	namespace AutoStopAPI.Controllers
+	{
+		[ApiController]
+		[Route("api/registration")]
+		public class RegistrationAPIController : Controller
+		{
+			[HttpPost]
+			public IActionResult PostRegistration([FromBody] Registration registration)
+			{
+				SQLRegistration SQLReg = new SQLRegistration();
+				SQLReg.RegistrationUser(registration);
+				return Ok();
+			}
+		}
+	}
+\end{lstlisting}
+
+TravelAPIController.cs
+\begin{lstlisting}[language=Java]
+	using AutoStopAPI.Models.SQL;
+	using AutoStopAPI.Models;
+	using Microsoft.AspNetCore.Mvc;
+	
+	namespace AutoStopAPI.Controllers
+	{
+		[Route("api/Travel")]
+		[ApiController]
+		public class TravelAPIController : Controller
+		{
+			[HttpPost]
+			public IActionResult PostTravel([FromBody] Travel travel)
+			{
+				SQLTravel sqlTravel = new SQLTravel();
+				int? result = sqlTravel.CreateTravel(travel);
+				
+				if (result == null)
+				{
+					return BadRequest();
+				}
+				return Ok(result);
+			}
+			
+			[HttpGet]
+			public IActionResult GetTravelDriver([FromQuery] string phoneDriver) 
+			{
+				SQLTravel sqlTravel = new SQLTravel();
+				List<Travel> travels = sqlTravel.GetTravelsByDriverPhone(phoneDriver);
+				
+				if (travels == null || travels.Count == 0)
+				{
+					return NotFound(new { message = "No travels found for the given driver phone number" });
+				}
+				return Ok(travels);
+			}
+			
+			[HttpGet("passenger")]
+			public IActionResult GetTravelPassenger([FromQuery] string phonePassenger)
+			{
+				SQLTravel sqlTravel = new SQLTravel();
+				List<Travel> travels = sqlTravel.GetTravelsByPassengerPhone(phonePassenger);
+				
+				if (travels == null || travels.Count == 0)
+				{
+					return NotFound(new { message = "No travels found for the given passenger phone number" });
+				}
+				return Ok(travels);
+			}
+			
+			[HttpDelete]
+			public IActionResult DeleteTravel(int idTravel)
+			{
+				SQLTravel sqlTravel = new SQLTravel();
+				bool result = sqlTravel.DeleteTravel(idTravel);
+				
+				if (!result)
+				{
+					return NotFound(new { message = "Travel not found or could not be deleted" });
+				}
+				return Ok(new { message = "Travel deleted successfully" });
+			}
+		}
+	}
+\end{lstlisting}
+
+TravelSearchPassengerAPIController.cs
+\begin{lstlisting}[language=Java]
+	using AutoStopAPI.Models.SQL;
+	using AutoStopAPI.Models;
+	using Microsoft.AspNetCore.Mvc;
+	using Microsoft.Data.SqlClient;
+	
+	namespace AutoStopAPI.Controllers
+	{
+		[Route("api/searchTravel")]
+		[ApiController]
+		public class TravelSearchPassengerAPIController : Controller
+		{
+			[HttpGet]
+			public IActionResult SearchTravel([FromQuery] string startCity, string endCity, int numberPassenger, DateOnly date)
+			{
+				PassengerSearch passenger = new PassengerSearch();
+				passenger.startCity = startCity;
+				passenger.endCity = endCity;
+				passenger.numberPassenger = numberPassenger;
+				passenger.date = date;
+				try
+				{
+					SQLSearchTravelPassenger search = new SQLSearchTravelPassenger();
+					List<Travel> result = search.SearchTravel(passenger);
+					return Ok(result);
+				}
+				catch (Exception ex)
+				{
+					// Логируем ошибку
+					Console.WriteLine("Ошибка при поиске поездки: " + ex.Message);
+					return StatusCode(500, "Внутренняя ошибка сервера");
+				}
+			}
+		}
+	}
+\end{lstlisting}
+
+UserAPIController.cs
+\begin{lstlisting}[language=Java]
+	using AutoStopAPI.Models;
+	using AutoStopAPI.Models.SQL;
+	using Microsoft.AspNetCore.Http;
+	using Microsoft.AspNetCore.Mvc;
+	
+	namespace AutoStopAPI.Controllers
+	{
+		[Route("api/User")]
+		[ApiController]
+		public class UserAPIController : ControllerBase
+		{
+			[HttpPatch]
+			public IActionResult PostUser([FromBody] User user)
+			{
+				SQLUser sqlUser = new SQLUser();
+				bool result = sqlUser.UpdateUser(user);
+				if (result == false) 
+				{
+					return BadRequest();
+				}
+				return Ok(result);
+			}
+		}
+	}
+\end{lstlisting}
+
+\ifВКР{
+\newpage
+\addcontentsline{toc}{section}{На отдельных листах (CD-RW в прикрепленном конверте)}
+\begin{center}
+\textbf{Место для диска}
+\end{center}
+}\fi

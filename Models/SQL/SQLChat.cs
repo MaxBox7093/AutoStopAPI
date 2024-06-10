@@ -66,6 +66,8 @@ namespace AutoStopAPI.Models.SQL
                             chat.deleteUser2 = reader.GetBoolean(3);
                         }
                     }
+
+                    return chat;
                 }
             }
             catch (Exception ex)
