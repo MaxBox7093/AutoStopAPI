@@ -1,0 +1,78 @@
+\babel@toc {russian}{}\relax 
+\babel@toc {english}{}\relax 
+\babel@toc {russian}{}\relax 
+\babel@toc {english}{}\relax 
+\babel@toc {russian}{}\relax 
+\contentsline {section}{ВВЕДЕНИЕ}{12}{section*.5}%
+\contentsline {section}{РЕЗЮМЕ СТАРТАП-ПРОЕКТА}{15}{section*.6}%
+\contentsline {section}{\numberline {1}Анализ предметной области}{18}{section.1}%
+\contentsline {subsection}{\numberline {1.1}Общие принципы и понятия поиска попутчиков для поездки}{18}{subsection.1.1}%
+\contentsline {subsection}{\numberline {1.2}Приложения для поиска попутчиков, их классификация}{20}{subsection.1.2}%
+\contentsline {subsection}{\numberline {1.3}Исследование аналогов}{22}{subsection.1.3}%
+\contentsline {subsubsection}{\numberline {1.3.1}BlablaCar}{22}{subsubsection.1.3.1}%
+\contentsline {subsubsection}{\numberline {1.3.2}Едем.рф}{23}{subsubsection.1.3.2}%
+\contentsline {subsubsection}{\numberline {1.3.3}Попутка.рус}{24}{subsubsection.1.3.3}%
+\contentsline {subsection}{\numberline {1.4}Пользовательское исследование}{25}{subsection.1.4}%
+\contentsline {section}{\numberline {2}Техническое задание}{28}{section.2}%
+\contentsline {subsection}{\numberline {2.1}Основание для разработки}{28}{subsection.2.1}%
+\contentsline {subsection}{\numberline {2.2}Назначение разработки}{28}{subsection.2.2}%
+\contentsline {subsection}{\numberline {2.3}Требования к программной системе}{28}{subsection.2.3}%
+\contentsline {subsubsection}{\numberline {2.3.1}Требования к данным программной системы}{28}{subsubsection.2.3.1}%
+\contentsline {subsubsection}{\numberline {2.3.2}Функциональные требования к программной системе}{29}{subsubsection.2.3.2}%
+\contentsline {paragraph}{\numberline {2.3.2.1}Вариант использования «Регистрация пользователя»}{32}{paragraph.2.3.2.1}%
+\contentsline {paragraph}{\numberline {2.3.2.2}Вариант использования «Регистрация водителя»}{33}{paragraph.2.3.2.2}%
+\contentsline {paragraph}{\numberline {2.3.2.3}Вариант использования «Авторизация»}{33}{paragraph.2.3.2.3}%
+\contentsline {paragraph}{\numberline {2.3.2.4}Вариант использования «Изменение пользовательских данных»}{33}{paragraph.2.3.2.4}%
+\contentsline {paragraph}{\numberline {2.3.2.5}Вариант использования «Получение информации об автомобилях»}{34}{paragraph.2.3.2.5}%
+\contentsline {paragraph}{\numberline {2.3.2.6}Вариант использования «Добавление нового автомобиля»}{34}{paragraph.2.3.2.6}%
+\contentsline {paragraph}{\numberline {2.3.2.7}Вариант использования «Изменение данных об автомобиле»}{35}{paragraph.2.3.2.7}%
+\contentsline {paragraph}{\numberline {2.3.2.8}Вариант использования «Удаление автомобиля»}{35}{paragraph.2.3.2.8}%
+\contentsline {paragraph}{\numberline {2.3.2.9}Вариант использования «Получение фото профиля»}{36}{paragraph.2.3.2.9}%
+\contentsline {paragraph}{\numberline {2.3.2.10}Вариант использования «Смена фото профиля»}{36}{paragraph.2.3.2.10}%
+\contentsline {paragraph}{\numberline {2.3.2.11}Вариант использования «Получение информации о статусе аккаунта}{36}{paragraph.2.3.2.11}%
+\contentsline {paragraph}{\numberline {2.3.2.12}Вариант использования «Создание поездки»}{37}{paragraph.2.3.2.12}%
+\contentsline {paragraph}{\numberline {2.3.2.13}Вариант использования «Удаление поездки»}{37}{paragraph.2.3.2.13}%
+\contentsline {paragraph}{\numberline {2.3.2.14}Вариант использования «Получение списка поездок по заданным критериям поиска»}{38}{paragraph.2.3.2.14}%
+\contentsline {paragraph}{\numberline {2.3.2.15}Вариант использования «Бронирование поездки»}{38}{paragraph.2.3.2.15}%
+\contentsline {paragraph}{\numberline {2.3.2.16}Вариант использования «Отмена брони»}{38}{paragraph.2.3.2.16}%
+\contentsline {paragraph}{\numberline {2.3.2.17}Вариант использования «Получения списка всех поездок для водителя»}{39}{paragraph.2.3.2.17}%
+\contentsline {paragraph}{\numberline {2.3.2.18}Вариант использования «Получения списка всех поездок для водителя»}{39}{paragraph.2.3.2.18}%
+\contentsline {paragraph}{\numberline {2.3.2.19}Вариант использования «Получения списка всех поездок для попутчика»}{40}{paragraph.2.3.2.19}%
+\contentsline {paragraph}{\numberline {2.3.2.20}Вариант использования «Создание чата»}{40}{paragraph.2.3.2.20}%
+\contentsline {paragraph}{\numberline {2.3.2.21}Вариант использования «Получение списка чатов»}{41}{paragraph.2.3.2.21}%
+\contentsline {paragraph}{\numberline {2.3.2.22}Вариант использования «Получение сообщений по чату»}{41}{paragraph.2.3.2.22}%
+\contentsline {paragraph}{\numberline {2.3.2.23}Вариант использования «Отправка сообщения»}{41}{paragraph.2.3.2.23}%
+\contentsline {paragraph}{\numberline {2.3.2.24}Вариант использования «Получение отзывов»}{42}{paragraph.2.3.2.24}%
+\contentsline {paragraph}{\numberline {2.3.2.25}Вариант использования «Удаление отзыва»}{42}{paragraph.2.3.2.25}%
+\contentsline {subsubsection}{\numberline {2.3.3}Нефункциональные требования к программной системе}{43}{subsubsection.2.3.3}%
+\contentsline {paragraph}{\numberline {2.3.3.1}Требования к надежности}{43}{paragraph.2.3.3.1}%
+\contentsline {paragraph}{\numberline {2.3.3.2}Требования к безопасности}{43}{paragraph.2.3.3.2}%
+\contentsline {paragraph}{\numberline {2.3.3.3}Требования к программному обеспечению}{44}{paragraph.2.3.3.3}%
+\contentsline {paragraph}{\numberline {2.3.3.4}Требования к аппаратному обеспечению}{44}{paragraph.2.3.3.4}%
+\contentsline {subsection}{\numberline {2.4}Требования к оформлению документации}{46}{subsection.2.4}%
+\contentsline {section}{\numberline {3}Технический проект}{47}{section.3}%
+\contentsline {subsection}{\numberline {3.1}Общая характеристика организации решения задачи}{47}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}Обоснование выбора технологий проектирования}{48}{subsection.3.2}%
+\contentsline {subsubsection}{\numberline {3.2.1}Язык программирования C\#}{48}{subsubsection.3.2.1}%
+\contentsline {subsubsection}{\numberline {3.2.2}Фреймворк ASP.net}{49}{subsubsection.3.2.2}%
+\contentsline {subsubsection}{\numberline {3.2.3}Расширение T-SQL}{51}{subsubsection.3.2.3}%
+\contentsline {subsubsection}{\numberline {3.2.4}Протокол связи HTTP}{52}{subsubsection.3.2.4}%
+\contentsline {subsection}{\numberline {3.3}Проект данных программной системы}{54}{subsection.3.3}%
+\contentsline {subsection}{\numberline {3.4}Проектирование архитектуры программной системы}{58}{subsection.3.4}%
+\contentsline {subsubsection}{\numberline {3.4.1}Компоненты программной системы}{58}{subsubsection.3.4.1}%
+\contentsline {subsubsection}{\numberline {3.4.2}Архитектура программной системы}{61}{subsubsection.3.4.2}%
+\contentsline {subsubsection}{\numberline {3.4.3}Архитектура программных классов моделей и контроллеров}{63}{subsubsection.3.4.3}%
+\contentsline {subsubsection}{\numberline {3.4.4}Архитектура программных классов SQL запросов}{65}{subsubsection.3.4.4}%
+\contentsline {section}{\numberline {4}Рабочий проект}{68}{section.4}%
+\contentsline {subsection}{\numberline {4.1}Классы, используемые при разработке серверной части программной системы}{68}{subsection.4.1}%
+\contentsline {subsubsection}{\numberline {4.1.1}Спецификация классов SQL запросов}{68}{subsubsection.4.1.1}%
+\contentsline {subsubsection}{\numberline {4.1.2}Описание моделей программной системы}{77}{subsubsection.4.1.2}%
+\contentsline {subsubsection}{\numberline {4.1.3}Описание контроллеров}{81}{subsubsection.4.1.3}%
+\contentsline {subsection}{\numberline {4.2}Тестирование серверной части программной системы}{88}{subsection.4.2}%
+\contentsline {subsubsection}{\numberline {4.2.1}Инструмент тестирования Postman}{88}{subsubsection.4.2.1}%
+\contentsline {subsubsection}{\numberline {4.2.2}Тестирование URI запросов}{89}{subsubsection.4.2.2}%
+\contentsline {section}{ЗАКЛЮЧЕНИЕ}{98}{section*.25}%
+\contentsline {section}{СПИСОК ИСПОЛЬЗОВАННЫХ ИСТОЧНИКОВ}{99}{Item.133}%
+\contentsline {section}{ПРИЛОЖЕНИЕ А\ Представление графического материала}{105}{section*.27}%
+\contentsline {section}{ПРИЛОЖЕНИЕ Б\ Фрагменты исходного кода программы}{114}{section*.36}%
+\contentsline {section}{На отдельных листах (CD-RW в прикрепленном конверте)}{126}{lstnumber.-14.24}%
